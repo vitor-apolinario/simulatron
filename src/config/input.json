@@ -1,0 +1,33 @@
+{
+  "maxGlobalTime": 3000,
+
+  "componentTypes": ["input", "finiteWorkers", "infiniteWorkers", "output"],
+  "componentsConfig": [
+    {
+      "identifier": "input1",
+      "componentType": "input",
+      "generatedEntities": 170,
+      "minTime": 2,
+      "maxTime": 5,
+      "initialTime": 0,
+      "nextComponent": ["reception"]
+    }, {
+      "identifier": "reception",
+      "componentType": "serviceCenter",
+      "workers": 2,      
+      "minTime": 7,
+      "maxTime": 12,
+      "nextComponent": ["medicalAttendance"]
+    }, {
+      "identifier": "medicalAttendance",
+      "componentType": "serviceCenter",
+      "workers": 3,      
+      "minTime": 15,
+      "maxTime": 25,
+      "nextComponent": ["output"]
+    }, {
+      "identifier": "exit",
+      "componentType": "output"
+    }
+  ]
+}

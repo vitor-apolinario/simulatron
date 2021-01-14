@@ -1,0 +1,31 @@
+{
+    "mediaPermanenciaEntidade": 57,
+    "componentes": [
+        {
+            "componente": "caixa eletronico",
+            "ociosidade": {            
+                "individual": [15, 14, 22],
+                "media": 17
+            },
+            "tempoContencao": {
+                "media": 4,
+                "maxima": 10
+            },
+            "mediaTempoAtendimento": 12,
+            "tamanhoMedioFila": 3        
+        },
+        {
+            "componente": "gerente",
+            "ociosidade": {            
+                "individual": [15],
+                "media": 15
+            },
+            "tempoContencao": {
+                "media": 16,
+                "maxima": 34
+            },
+            "mediaTempoAtendimento": 15,
+            "tamanhoMedioFila": 4
+        }        
+    ]
+}
