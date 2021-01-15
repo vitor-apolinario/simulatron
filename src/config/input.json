@@ -1,7 +1,5 @@
 {
   "maxGlobalTime": 3000,
-
-  "componentTypes": ["input", "finiteWorkers", "infiniteWorkers", "output"],
   "componentsConfig": [
     {
       "identifier": "input1",
@@ -11,21 +9,33 @@
       "maxTime": 5,
       "initialTime": 0,
       "nextComponent": ["reception"]
-    }, {
+    },
+    {
       "identifier": "reception",
       "componentType": "serviceCenter",
-      "workers": 2,      
+      "workers": 2,
       "minTime": 7,
       "maxTime": 12,
-      "nextComponent": ["medicalAttendance"]
-    }, {
+      "nextComponent": ["router1"]
+    },
+    {
+      "identifier": "router1",
+      "componentType": "router",
+      "nextComponent": [
+        { "identifier": "medicalAttendance", "tickets": 90 },
+        { "identifier": "reception", "tickets": 10 },
+        { "identifier": "exit", "tickets": 20 }
+      ]
+    },
+    {
       "identifier": "medicalAttendance",
       "componentType": "serviceCenter",
-      "workers": 3,      
+      "workers": 3,
       "minTime": 15,
       "maxTime": 25,
-      "nextComponent": ["output"]
-    }, {
+      "nextComponent": ["exit"]
+    },
+    {
       "identifier": "exit",
       "componentType": "output"
     }

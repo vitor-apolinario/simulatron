@@ -32,28 +32,24 @@ class ServiceCenter implements Component {
     const totalAttendanceTime = this.workers.reduce((totalAttendanceTime, worker: Worker) => (totalAttendanceTime + worker.averageAttendanceTime), 0);
 
     this.averageIdleness = totalIdleness / this.workers.length;
-
     this.averageWaitTime = this.totalWaitingTime / this.waiters;
-
     this.averageAttendanceTime = totalAttendanceTime / this.workers.length;
 
     this.sortWorkersById();
   }
 
   handleEvent(event: SimulatorEvent) : SimulatorEvent | undefined {
-
     this.entityCount += 1;
 
     let worker: Worker = this.workers[this.workers.length -1];
 
     if(worker.localTime > event.time) {
       const timeWaiting = worker.localTime - event.time;
-
       event.temporaryEntity.waitingTime += timeWaiting;
 
       if(timeWaiting > this.maxWaitTime)
         this.maxWaitTime = timeWaiting;
-
+        
       this.totalWaitingTime += timeWaiting;
       this.waiters += 1;
     }
@@ -62,8 +58,7 @@ class ServiceCenter implements Component {
 
     this.sortWorkerByAttendanceTime();
     
-    const nextComponentsList = this.configuration.nextComponent;
-    const nextComponent = nextComponentsList[getRandomInt(0, nextComponentsList.length -1)];
+    const nextComponent = this.configuration.nextComponent[0];
 
     if(!nextComponent)
       return undefined;

@@ -1,55 +1,75 @@
-import { readFileSync } from 'fs';
-import { join } from 'path'
+import { readFileSync } from "fs";
+import { join } from "path";
 
-import UniformGenerator from './classes/UniformGenerator';
-import GlobalEventQueue from './classes/GlobalEventQueue';
-import SimulatorEvent from './classes/Event';
-import TemporaryEntity from './classes/TemporaryEntity';
-import ServiceCenter from './classes/components/ServiceCenter';
-import ComponentHash from './interfaces/ComponentHash';
+import UniformGenerator from "./classes/UniformGenerator";
+import GlobalEventQueue from "./classes/GlobalEventQueue";
+import Event from "./classes/Event";
+import TemporaryEntity from "./classes/TemporaryEntity";
 
+import Output from "./classes/components/Output";
+import ServiceCenter from "./classes/components/ServiceCenter";
+import UniformRouter from "./classes/components/UniformRouter";
 
-let data = readFileSync(join(__dirname, 'config', 'input.json'));
+import ComponentHash from "./interfaces/ComponentHash";
 
-const configs = JSON.parse(data.toString());
+let data = readFileSync(join(__dirname, "config", "input.json"));
 
-const  { maxGlobalTime , componentsConfig } = configs;
+const { maxGlobalTime, componentsConfig } = JSON.parse(data.toString());
 
 const components: ComponentHash = {};
-
 const globalEventQueue = new GlobalEventQueue(maxGlobalTime);
-
-let inputsConfig = componentsConfig.filter(component => component.componentType === 'input');
-let serviceCentersConfig = componentsConfig.filter(component => component.componentType === 'serviceCenter');
-
-serviceCentersConfig.forEach(serviceCenterConfig => components[serviceCenterConfig.identifier] = new ServiceCenter(serviceCenterConfig));
-
-let inputsEntries: SimulatorEvent[][] = inputsConfig.map(inputConfig => new UniformGenerator(inputConfig).generate())
-
-inputsEntries.forEach(eventList => eventList.forEach(event => globalEventQueue.put(event)));
-
-let lastEventTime: number;
 const outputEntities: TemporaryEntity[] = [];
+let lastEventTime: number;
 
-while (globalEventQueue.hasEvent()) {
+let {
+  outputsConfig,
+  serviceCentersConfig,
+  routersConfig,
+  inputsConfig,
+} = filterComponentTypes();
 
-  const currentEvent: SimulatorEvent = globalEventQueue.get()
+configureComponents();
+configureInitialEvents();
+simulate();
+showMetrics();
 
-  lastEventTime = currentEvent.time;
+function showMetrics() {
+  Object.keys(components).forEach((componentIdentifier) => components[componentIdentifier].generateMetrics(lastEventTime));
+  Object.keys(components).forEach((componentIdentifier) =>console.log(components[componentIdentifier]));
 
-  
-  if(currentEvent.component === 'output') {
-    outputEntities.push(currentEvent.temporaryEntity);
-    continue;
-  }
-   
-  const generatedEvent: SimulatorEvent = components[currentEvent.component].handleEvent(currentEvent);
+  const totalEntityTime = outputEntities.reduce((totalEntityTime, entity) =>entity.timeInAttendance + entity.waitingTime + totalEntityTime, 0)
 
-  if(generatedEvent)
-    globalEventQueue.put(generatedEvent)
+  console.log("avg entity time in the simulation: ", totalEntityTime / outputEntities.length);
 }
 
-Object.keys(components).forEach((componentIdentifier) => components[componentIdentifier].generateMetrics(lastEventTime))
-Object.keys(components).forEach((componentIdentifier) => console.log(components[componentIdentifier]));
+function filterComponentTypes() {
+  let inputsConfig = componentsConfig.filter((component) => component.componentType === "input");
+  let outputsConfig = componentsConfig.filter((component) => component.componentType === "output");
+  let serviceCentersConfig = componentsConfig.filter((component) => component.componentType === "serviceCenter");
+  let routersConfig = componentsConfig.filter((component) => component.componentType === "router");
+  return { outputsConfig, serviceCentersConfig, routersConfig, inputsConfig };
+}
 
-console.log('avg entity time in the simulation: ', outputEntities.reduce((totalEntityTime, entity) => (entity.timeInAttendance + entity.waitingTime + totalEntityTime), 0) / outputEntities.length);
+function configureComponents() {
+  outputsConfig.forEach((outputConfig) =>(components[outputConfig.identifier] = new Output(outputEntities)));
+  serviceCentersConfig.forEach((serviceCenterConfig) =>(components[serviceCenterConfig.identifier] = new ServiceCenter(serviceCenterConfig)));
+  routersConfig.forEach((routerConfig) =>(components[routerConfig.identifier] = new UniformRouter(routerConfig))
+  );
+}
+
+function configureInitialEvents() {
+  let inputsEntries: Event[][] = inputsConfig.map((inputConfig) =>new UniformGenerator(inputConfig).generate());
+  inputsEntries.forEach((eventList) =>eventList.forEach((event) => globalEventQueue.put(event)));
+}
+
+function simulate() {
+  while (globalEventQueue.hasEvent()) {
+    const currentEvent: Event = globalEventQueue.get();
+    lastEventTime = currentEvent.time;
+
+    const generatedEvent: Event = components[currentEvent.component].handleEvent(currentEvent);
+
+    if (generatedEvent) 
+      globalEventQueue.put(generatedEvent);
+  }
+}
