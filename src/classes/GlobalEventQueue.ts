@@ -11,12 +11,16 @@ class GlobalEventQueue {
   put(event: SimulatorEvent) {
     
     if((event && event.time > this.maxGlobalTime) || !event) {
-      throw new Error('problema ao adicionar o evento na fila');
+      console.log('problema ao adicionar o evento na fila: ', event);
+      return;
     }
 
     this.events.push(event);
+    this.sortEventByExecutionTime();    
+  }
 
-    this.events.sort((eventA, eventB) => eventA.time - eventB.time);    
+  private sortEventByExecutionTime() {
+    this.events.sort((eventA, eventB) => eventA.time - eventB.time);
   }
 
   get() {

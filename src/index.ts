@@ -58,7 +58,7 @@ function configureComponents() {
 }
 
 function configureInitialEvents() {
-  let inputsEntries: Event[][] = inputsConfig.map((inputConfig) =>new UniformGenerator(inputConfig).generate());
+  let inputsEntries: Event[][] = inputsConfig.map((inputConfig) => new UniformGenerator(inputConfig).generate());
   inputsEntries.forEach((eventList) =>eventList.forEach((event) => globalEventQueue.put(event)));
 }
 
