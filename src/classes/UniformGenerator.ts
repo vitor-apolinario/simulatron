@@ -24,9 +24,8 @@ class UniformGenerator implements EntityGenerator {
   generate() {
     let events: SimulatorEvent[] = [];
 
-    const nextComponents = this.configuration.nextComponent;
-    const nextComponent = nextComponents[getRandomInt(0, nextComponents.length - 1)];
-
+    const { nextComponent } = this.configuration;
+    
     for (let n = 0; n < this.generatedEntities; n++) {
       this.generationAccumulatedTime += getRandomInt(this.minTime, this.maxTime);
       events.push(new SimulatorEvent(nextComponent, this.generationAccumulatedTime, new TemporaryEntity(`${this.configuration.identifier}_${n}`)));

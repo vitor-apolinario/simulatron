@@ -8,7 +8,7 @@
       "minTime": 2,
       "maxTime": 5,
       "initialTime": 0,
-      "nextComponent": ["reception"]
+      "nextComponent": "reception"
     },
     {
       "identifier": "reception",
@@ -16,12 +16,12 @@
       "workers": 2,
       "minTime": 7,
       "maxTime": 12,
-      "nextComponent": ["router1"]
+      "nextComponent": "router1"
     },
     {
       "identifier": "router1",
       "componentType": "router",
-      "nextComponent": [
+      "routingStats": [
         { "identifier": "medicalAttendance", "tickets": 90 },
         { "identifier": "reception", "tickets": 10 },
         { "identifier": "exit", "tickets": 20 }
@@ -33,7 +33,7 @@
       "workers": 3,
       "minTime": 15,
       "maxTime": 25,
-      "nextComponent": ["exit"]
+      "nextComponent": "exit"
     },
     {
       "identifier": "exit",

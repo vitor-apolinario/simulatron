@@ -11,7 +11,7 @@ class UniformRouter implements Component {
 
   constructor(private configuration: any) {
     this.identifier = this.configuration.identifier;
-    this.componentTicketRanges = configuration.nextComponent;
+    this.componentTicketRanges = configuration.routingStats;
 
     this.generateRoutingRules();
   }

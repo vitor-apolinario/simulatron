@@ -13,8 +13,8 @@ class Worker {
   attendanceTime: number = 0;
   averageAttendanceTime: number = 0;
 
-  constructor(id: string, { minTime, maxTime }) {
-    this.id = id;
+  constructor(id: number, { identifier, minTime, maxTime }) {
+    this.id = `worker_${identifier}_${id}`;
     this.minTime = minTime;
     this.maxTime = maxTime;
   }
