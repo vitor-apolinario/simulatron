@@ -1,0 +1,47 @@
+{
+  "serviceCenters": [
+    {
+      "identifier": "reception",
+      "averageIdleness": 43.5,
+      "averageWaitTime": 341.3125,
+      "maxWaitTime": 683,
+      "averageAttendanceTime": 9.001817635769326,
+      "averageQueueSize": 36.42084168336673,
+      "attendEntities": 356,
+      "workers": [
+        {
+          "identifier": "worker_reception_1",
+          "idleness": 50
+        },
+        {
+          "identifier": "worker_reception_2",
+          "idleness": 37
+        }
+      ]
+    },
+    {
+      "identifier": "medicalAttendance",
+      "averageIdleness": 276.3333333333333,
+      "averageWaitTime": 10.482558139534884,
+      "maxWaitTime": 31,
+      "averageAttendanceTime": 19.432913315371554,
+      "averageQueueSize": 2.0078740157480315,
+      "attendEntities": 237,
+      "workers": [
+        {
+          "identifier": "worker_medicalAttendance_1",
+          "idleness": 273
+        },
+        {
+          "identifier": "worker_medicalAttendance_2",
+          "idleness": 280
+        },
+        {
+          "identifier": "worker_medicalAttendance_3",
+          "idleness": 276
+        }
+      ]
+    }
+  ],
+  "averageEntityLifeCycle": 649.675
+}

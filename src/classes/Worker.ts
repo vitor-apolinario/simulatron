@@ -21,9 +21,10 @@ class Worker {
 
   doWork(event: SimulatorEvent) {
 
+    // verifica ociosidade
     if(event.time > this.localTime) {
+      this.idleness += (event.time - this.localTime);
       this.localTime = event.time;
-      this.idleness += event.time - this.localTime;
     }
 
     let workTime = getRandomInt(this.minTime, this.maxTime);
@@ -40,6 +41,8 @@ class Worker {
 
   generateMetrics(lastEventTime: number) {
     this.idleness += lastEventTime - this.attendanceTime;
+
+    return { identifier: this.id, idleness: this.idleness };
   }
 }
 

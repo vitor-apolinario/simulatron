@@ -1,5 +1,6 @@
 {
-  "maxGlobalTime": 3000,
+  "modelName": "medicalClinic_1",
+  "maxGlobalTime": 99999999,
   "componentsConfig": [
     {
       "identifier": "input1",
@@ -22,9 +23,7 @@
       "identifier": "router1",
       "componentType": "router",
       "routingStats": [
-        { "identifier": "medicalAttendance", "tickets": 90 },
-        { "identifier": "reception", "tickets": 10 },
-        { "identifier": "exit", "tickets": 20 }
+        { "identifier": "medicalAttendance", "tickets": 100 }
       ]
     },
     {

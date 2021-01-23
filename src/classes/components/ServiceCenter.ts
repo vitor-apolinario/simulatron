@@ -3,6 +3,7 @@ import SimulatorEvent from '../Event';
 
 import Component from '../../interfaces/Component';
 import WorkerQueue from '../WorkerQueue';
+import { worker } from 'cluster';
 
 class ServiceCenter implements Component {
 
@@ -18,6 +19,10 @@ class ServiceCenter implements Component {
   waiters: number = 0;
   nextComponent: string  = '' ;
 
+  queueChangesCount: number = 0;
+  queueChangesSum: number = 0;
+  averageQueueSize: number = 0;
+
   constructor(private configuration: any) {
     this.identifier = configuration.identifier;
     this.nextComponent = this.configuration.nextComponent;
@@ -26,14 +31,27 @@ class ServiceCenter implements Component {
   }
 
   generateMetrics(lastEventTime: number) {
-    this.workerQueue.generateMetrics(lastEventTime);
 
+    const workers = this.workerQueue.generateMetrics(lastEventTime);
+    
     const totalIdleness = this.workerQueue.workers.reduce((totalIdleness, worker: Worker) => (totalIdleness + worker.idleness), 0);
     const totalAttendanceTime = this.workerQueue.workers.reduce((totalAttendanceTime, worker: Worker) => (totalAttendanceTime + worker.averageAttendanceTime), 0);
 
     this.averageIdleness = totalIdleness / this.workerQueue.workers.length;
     this.averageWaitTime = this.totalWaitingTime / this.waiters;
     this.averageAttendanceTime = totalAttendanceTime / this.workerQueue.workers.length;
+    this.averageQueueSize = this.queueChangesSum / this.queueChangesCount;
+
+    return { 
+      identifier: this.identifier,
+      averageIdleness: this.averageIdleness, 
+      averageWaitTime: this.averageWaitTime, 
+      maxWaitTime: this.maxWaitTime, 
+      averageAttendanceTime: this.averageAttendanceTime, 
+      averageQueueSize: this.averageQueueSize, 
+      attendEntities: this.entityCount,
+      workers
+    }
   }
 
   handleEvent(event: SimulatorEvent) : SimulatorEvent | undefined {
@@ -41,6 +59,7 @@ class ServiceCenter implements Component {
 
     let worker: Worker = this.workerQueue.get()
 
+    // verifica espera
     if(worker.localTime > event.time) {
       const timeWaiting = worker.localTime - event.time;
       event.temporaryEntity.waitingTime += timeWaiting;
@@ -58,6 +77,23 @@ class ServiceCenter implements Component {
     
     return new SimulatorEvent(this.nextComponent, finalAttendanceTime, event.temporaryEntity);
   }
+
+  handleQueueChange(eventsOnCurrentComponentQueue: number) {
+    if(!eventsOnCurrentComponentQueue || eventsOnCurrentComponentQueue < 0)
+      throw new Error(`Erro ${this.identifier}.handleQueueChange`);
+
+    this.queueChangesCount += 1;
+    this.queueChangesSum += eventsOnCurrentComponentQueue;
+  }
+
+  getCurrentTime() {     
+    const worker: Worker = this.workerQueue.get();
+
+    this.workerQueue.put(worker);
+
+    return worker.localTime;
+  }
+
 }
 
 export default ServiceCenter;

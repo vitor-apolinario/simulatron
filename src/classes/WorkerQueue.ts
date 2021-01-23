@@ -21,9 +21,9 @@ class WorkerQueue {
   }
 
   generateMetrics(lastEventTime: number) {
-    this.workers.forEach(worker => worker.generateMetrics(lastEventTime));
-
     this.sortWorkersById();
+    
+    return this.workers.map(worker => worker.generateMetrics(lastEventTime));
   }
 
   private sortWorkerByAttendanceTime() {

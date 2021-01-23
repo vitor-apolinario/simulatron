@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import UniformGenerator from "./classes/UniformGenerator";
@@ -12,12 +12,12 @@ import UniformRouter from "./classes/components/UniformRouter";
 
 import ComponentHash from "./interfaces/ComponentHash";
 
-let data = readFileSync(join(__dirname, "config", "input.json"));
+let data = readFileSync(join(__dirname, "config", "input2.json"));
 
-const { maxGlobalTime, componentsConfig } = JSON.parse(data.toString());
+const { modelName, maxGlobalTime, componentsConfig } = JSON.parse(data.toString());
 
 const components: ComponentHash = {};
-const globalEventQueue = new GlobalEventQueue(maxGlobalTime);
+const globalEventQueue = new GlobalEventQueue(maxGlobalTime, components);
 const outputEntities: TemporaryEntity[] = [];
 let lastEventTime: number;
 
@@ -31,15 +31,29 @@ let {
 configureComponents();
 configureInitialEvents();
 simulate();
-showMetrics();
+generateMetrics();
 
-function showMetrics() {
-  Object.keys(components).forEach((componentIdentifier) => components[componentIdentifier].generateMetrics(lastEventTime));
-  Object.keys(components).forEach((componentIdentifier) =>console.log(components[componentIdentifier]));
+function generateMetrics() {
+  let metrics: any = {};
+
+  metrics.serviceCenters = [];
+
+  Object.keys(components).forEach((componentIdentifier) =>  {
+    const component = components[componentIdentifier];
+
+    if(!(component instanceof ServiceCenter))
+      return;
+
+    metrics.serviceCenters.push(component.generateMetrics(lastEventTime));    
+  });
 
   const totalEntityTime = outputEntities.reduce((totalEntityTime, entity) =>entity.timeInAttendance + entity.waitingTime + totalEntityTime, 0)
 
-  console.log("avg entity time in the simulation: ", totalEntityTime / outputEntities.length);
+  metrics.averageEntityLifeCycle = (totalEntityTime / outputEntities.length);
+
+  // console.log(JSON.stringify(metrics , null, 2))
+
+  writeFileSync(join(__dirname, "config", `output_${modelName}.json`), JSON.stringify(metrics , null, 2))
 }
 
 function filterComponentTypes() {
@@ -51,15 +65,15 @@ function filterComponentTypes() {
 }
 
 function configureComponents() {
-  outputsConfig.forEach((outputConfig) =>(components[outputConfig.identifier] = new Output(outputEntities)));
-  serviceCentersConfig.forEach((serviceCenterConfig) =>(components[serviceCenterConfig.identifier] = new ServiceCenter(serviceCenterConfig)));
+  outputsConfig.forEach((outputConfig) => (components[outputConfig.identifier] = new Output(outputEntities)));
+  serviceCentersConfig.forEach((serviceCenterConfig) => (components[serviceCenterConfig.identifier] = new ServiceCenter(serviceCenterConfig)));
   routersConfig.forEach((routerConfig) =>(components[routerConfig.identifier] = new UniformRouter(routerConfig))
   );
 }
 
 function configureInitialEvents() {
   let inputsEntries: Event[][] = inputsConfig.map((inputConfig) => new UniformGenerator(inputConfig).generate());
-  inputsEntries.forEach((eventList) =>eventList.forEach((event) => globalEventQueue.put(event)));
+  inputsEntries.forEach((eventList) => eventList.forEach((event) => globalEventQueue.put(event)));
 }
 
 function simulate() {
@@ -67,9 +81,14 @@ function simulate() {
     const currentEvent: Event = globalEventQueue.get();
     lastEventTime = currentEvent.time;
 
-    const generatedEvent: Event = components[currentEvent.component].handleEvent(currentEvent);
+    let generatedEvent: Event = components[currentEvent.component].handleEvent(currentEvent);
 
-    if (generatedEvent) 
+    if (generatedEvent) {
+      if(components[generatedEvent.component] instanceof UniformRouter) {
+        generatedEvent = (components[generatedEvent.component] as UniformRouter).handleEvent(generatedEvent);
+      }
+      
       globalEventQueue.put(generatedEvent);
+    } 
   }
 }
