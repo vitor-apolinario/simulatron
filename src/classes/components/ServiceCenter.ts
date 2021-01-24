@@ -74,6 +74,8 @@ class ServiceCenter implements Component {
     const finalAttendanceTime = worker.doWork(event);
 
     this.workerQueue.put(worker)
+
+    if(this.identifier === 'medicalAttendance') event.temporaryEntity.state = 1;
     
     return new SimulatorEvent(this.nextComponent, finalAttendanceTime, event.temporaryEntity);
   }

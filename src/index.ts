@@ -9,6 +9,7 @@ import TemporaryEntity from "./classes/TemporaryEntity";
 import Output from "./classes/components/Output";
 import ServiceCenter from "./classes/components/ServiceCenter";
 import UniformRouter from "./classes/components/UniformRouter";
+import StateRouter from "./classes/components/StateRouter";
 
 import ComponentHash from "./interfaces/ComponentHash";
 
@@ -26,6 +27,7 @@ let {
   serviceCentersConfig,
   routersConfig,
   inputsConfig,
+  stateRoutersConfig
 } = filterComponentTypes();
 
 configureComponents();
@@ -61,14 +63,15 @@ function filterComponentTypes() {
   let outputsConfig = componentsConfig.filter((component) => component.componentType === "output");
   let serviceCentersConfig = componentsConfig.filter((component) => component.componentType === "serviceCenter");
   let routersConfig = componentsConfig.filter((component) => component.componentType === "router");
-  return { outputsConfig, serviceCentersConfig, routersConfig, inputsConfig };
+  let stateRoutersConfig = componentsConfig.filter((component) => component.componentType === "stateRouter");
+  return { outputsConfig, serviceCentersConfig, routersConfig, inputsConfig, stateRoutersConfig };
 }
 
 function configureComponents() {
   outputsConfig.forEach((outputConfig) => (components[outputConfig.identifier] = new Output(outputEntities)));
   serviceCentersConfig.forEach((serviceCenterConfig) => (components[serviceCenterConfig.identifier] = new ServiceCenter(serviceCenterConfig)));
-  routersConfig.forEach((routerConfig) =>(components[routerConfig.identifier] = new UniformRouter(routerConfig))
-  );
+  routersConfig.forEach((routerConfig) => (components[routerConfig.identifier] = new UniformRouter(routerConfig)));
+  stateRoutersConfig.forEach((stateRouterConfig) => (components[stateRouterConfig.identifier] = new StateRouter()));
 }
 
 function configureInitialEvents() {
