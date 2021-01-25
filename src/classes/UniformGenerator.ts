@@ -1,11 +1,10 @@
-import EntityGenerator from '../interfaces/EntityGenerator';
 import SimulatorEvent from './Event';
 import TemporaryEntity from './TemporaryEntity';
 
 
 import { getRandomInt } from '../utils/utils';
 
-class UniformGenerator implements EntityGenerator {
+class UniformGenerator {
   
   minTime: number;
   maxTime: number;

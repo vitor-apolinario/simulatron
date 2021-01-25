@@ -52,6 +52,7 @@ function generateMetrics() {
   const totalEntityTime = outputEntities.reduce((totalEntityTime, entity) =>entity.timeInAttendance + entity.waitingTime + totalEntityTime, 0)
 
   metrics.averageEntityLifeCycle = (totalEntityTime / outputEntities.length);
+  metrics.simulationTime = lastEventTime;
 
   // console.log(JSON.stringify(metrics , null, 2))
 
